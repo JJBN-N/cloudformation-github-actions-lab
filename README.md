@@ -8,7 +8,7 @@
 >
 > This exercise teaches a real DevOps practice: **Git as the source of truth for infrastructure, automated deployments, repeatable environments, and short-lived cloud credentials**. GitHub Actions runs the pipeline; CloudFormation provisions the resources; Ubuntu installs and runs Nginx.
 
-**Assignment type:** Individual student homework  
+**Assignment type:** Individual  
 **Estimated duration:** 45–75 minutes (first-time IAM/OIDC setup can take longer)  
 **Level:** Beginner–intermediate DevOps  
 **AWS environment:** Your own *sandbox/learning* account (not an employer production account)
