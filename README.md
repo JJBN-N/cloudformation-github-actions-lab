@@ -1,4 +1,4 @@
-# bongoDev Homework: Automate AWS Infrastructure as Code with GitHub Actions
+# Automate AWS Infrastructure as Code with GitHub Actions
 
 > **Purpose of this lab - read this first**
 >
@@ -420,23 +420,7 @@ In **GitHub → Actions → Deploy Ubuntu Nginx with CloudFormation**, select **
 
 ---
 
-## 11. Step 10 - Submit your evidence BEFORE deleting resources
-
-Complete the [student submission checklist](docs/student-submission-checklist.md). Submit:
-
-1. Your GitHub repository URL and the commit URL for the **second push**.
-2. Screenshot of **successful GitHub Actions** runs (initial creation and second update).
-3. Screenshot of the **CloudFormation stack** (`CREATE_COMPLETE` / `UPDATE_COMPLETE`).
-4. Screenshot of the **Ubuntu EC2 instance and updated `Course` tag**.
-5. Screenshot of the live **Nginx website** showing `Hello from bongoDev!`.
-6. A short paragraph explaining **GitHub Actions vs CloudFormation** and why **OIDC** is preferred over long-lived AWS access keys.
-7. Confirmation that the stack was **deleted** after the evidence was captured.
-
-Do not submit access keys, credentials, private key files, or unnecessary personal/account details.
-
----
-
-## 12. Step 11 - MANDATORY cleanup (avoid AWS charges)
+## 11. Step 10 - MANDATORY cleanup (avoid AWS charges)
 
 **Do not leave the instance running after completing the lab.**
 
@@ -464,7 +448,7 @@ aws cloudformation wait stack-delete-complete \
 
 ---
 
-## 13. Troubleshooting (read the relevant symptom)
+## 12. Troubleshooting (read the relevant symptom)
 
 ### Error: `Not authorized to perform sts:AssumeRoleWithWebIdentity`
 
@@ -515,16 +499,28 @@ aws cloudformation wait stack-delete-complete \
 - To demonstrate an actual update, modify the **EC2 Course tag value** and push the YAML again.
 
 ---
+### Ans of some Questions 
 
-## 14. Questions to answer in your homework
+## 1. What is the difference between GitHub Actions and AWS CloudFormation?
+Answer: GitHub Actions is a CI/CD automation tool that runs the pipeline (it listens for a git push, authenticates with AWS, and executes commands). AWS CloudFormation is an Infrastructure as Code (IaC) service that actually builds and manages the AWS resources (like EC2, VPC) based on the YAML template.
 
-1. What is the difference between **GitHub Actions** and **AWS CloudFormation**?
-2. Why can a `git push` deploy infrastructure without anyone logging into the AWS console?
-3. What does **OIDC** do, and why is it safer than committing AWS access keys?
-4. On a second push, why is the existing stack **updated** instead of creating a new one?
-5. Is **CloudFormation stack creation complete** always the same as **Nginx ready**? Why not?
-6. Why does this homework update the **EC2 tag** instead of changing the webpage HTML?
-7. What should happen to AWS resources when you have finished the assignment?
+## 2. Why can a git push deploy infrastructure without anyone logging into the AWS console?
+Answer: Because the repository contains a GitHub Actions workflow (.github/workflows/deploy.yml). When we push, GitHub Actions automatically triggers, uses OIDC to get temporary AWS credentials, and runs the aws cloudformation deploy CLI command in the background.
+
+## 3. What does OIDC do, and why is it safer than committing AWS access keys?
+Answer: OIDC (OpenID Connect) allows GitHub Actions to securely assume an AWS IAM Role and get short-lived temporary credentials. It is safer because we don't have to store permanent, long-lived AWS Access Keys in our code or GitHub Secrets, which could be stolen or leaked if the repository is exposed.
+
+## 4. On a second push, why is the existing stack updated instead of creating a new one?
+Answer: Because CloudFormation is stateful and declarative. The aws cloudformation deploy command checks if a stack with the name bongodev-github-iac-dev already exists. If it does, it compares the new YAML file with the existing stack and only applies the necessary updates (like the tag change) instead of building from scratch.
+
+## 5. Is CloudFormation stack creation complete always the same as Nginx ready? Why not?
+Answer: No. CREATE_COMPLETE means AWS has successfully launched the EC2 instance and the network. However, installing Nginx happens asynchronously inside the EC2 instance via the UserData script. It takes a few minutes for the instance to boot, run apt-get install nginx, and start the web server.
+
+## 6. Why does this homework update the EC2 tag instead of changing the webpage HTML?
+Answer: Because EC2 UserData scripts run only during the first initial boot. If we change the HTML inside UserData and push, the existing EC2 instance will not re-run the script. Updating the EC2 tag safely proves that CloudFormation updated the resource without replacing the instance.
+
+## 7. What should happen to AWS resources when you have finished the assignment?
+Answer: The CloudFormation stack (bongodev-github-iac-dev) must be deleted from the AWS Console. This will terminate the EC2 instance and delete the VPC, preventing any ongoing AWS charges. After that, the IAM Role and Policy should also be deleted.
 
 **Definition to remember:** *IaC = describe the desired infrastructure as code; GitHub Actions = run the deployment automation; CloudFormation = reconcile AWS resources to that template.*
 
@@ -541,4 +537,3 @@ aws cloudformation wait stack-delete-complete \
 
 ---
 
-**bongoDev - Learn. Practice. Prove you're ready.**
